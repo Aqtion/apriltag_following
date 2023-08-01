@@ -1,6 +1,9 @@
 from threading import Thread, Event
 from time import sleep
-
+from dt_apriltags import Detector
+import cv2
+import matplotlib.pyplot as plt
+import numpy as np
 from pid import PID
 from video import Video
 from bluerov_interface import BlueROV
@@ -57,7 +60,6 @@ def _get_frame():
                 crosshair_offset = 40
                 cv2.line(color_img, (int(width - crosshair_offset), int(height)), (int(width + crosshair_offset), int(height)), (255,0,0), 5)
                 cv2.line(color_img, (int(width), int(height - crosshair_offset)), (int(width), int(height + crosshair_offset)), (255,0,0), 5)
-                draw_tags(color_img, tags)
                 plt.imshow(color_img)
                 pid_x = PID(10, 0, 0, 100)
                 pid_y = PID(10, 0, 0, 100)
@@ -112,12 +114,11 @@ def _get_frame():
 
                     
                     p_img = color_img.copy()
-                    # plt.imshow(p_img)
-                    output_video.write(p_img)
-                    # plt.show()
+                    
+    
                 except:
                     pass
-                            # TODO: set vertical_power and lateral_power here
+                
     except KeyboardInterrupt:
         return
 
