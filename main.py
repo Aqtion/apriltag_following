@@ -113,9 +113,11 @@ def _get_frame():
                     cv2.putText(color_img, str_y_out, (int(1320),int(980)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 5, cv2.LINE_AA)
 
                     
-                    p_img = color_img.copy()
+                    # p_img = color_img.copy()
                     
-    
+                    BlueROV.set_lateral_power(x_output)
+                    BlueROV.set_vertical_power(y_output)
+
                 except:
                     pass
                 
