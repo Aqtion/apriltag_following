@@ -27,8 +27,12 @@ def process(frame, pid_x, pid_y, at_detector):
     color_img = tags_img[1]
 
     draw_center(color_img)
+
     try:
         data = get_errors(color_img, tags, True)
+
+        print(data)
+
         errors = data[0]
         centers = data[1]
 
@@ -45,6 +49,11 @@ def process(frame, pid_x, pid_y, at_detector):
         pass
 
 def get_errors(color_img, tags, draw):
+    x_error = 0
+    y_error = 0
+    center_x = 0
+    center_y = 0
+
     for tag in tags:
         translation_matrix = tag.pose_t.reshape(1,3)
             
@@ -108,7 +117,7 @@ def draw_powers(color_img, powers):
     x_side_offset = 100
     top_offset = 100
 
-    y_side_offset = 500
+    y_side_offset = 600
 
     cv2.putText(color_img, str_x_out, (int(x_side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 5, cv2.LINE_AA) 
     cv2.putText(color_img, str_y_out, (int(width - y_side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 5, cv2.LINE_AA)
