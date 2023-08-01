@@ -8,8 +8,6 @@ def process(frame, pid_x, pid_y, at_detector):
     height = dimensions[0]/2
     width = dimensions[1]/2
     cameraMatrix = np.array([ 1060.71, 0, 960, 0, 1060.71, 540, 0, 0, 1]).reshape((3,3))
-    width = 960
-    height = 540
     camera_params = ( cameraMatrix[0,0], cameraMatrix[1,1], cameraMatrix[0,2], cameraMatrix[1,2] )
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     tags = at_detector.detect(gray, estimate_tag_pose=True, camera_params = camera_params, tag_size=0.1)
@@ -73,5 +71,4 @@ def process(frame, pid_x, pid_y, at_detector):
         return [x_output, y_output]
     except:
         pass
-        
-    
+
