@@ -28,6 +28,13 @@ frame_available.set()
 vertical_power = 0
 lateral_power = 0
 
+at_detector = Detector(families='tag36h11',
+                    nthreads=1,
+                    quad_decimate=1.0,
+                    quad_sigma=0.0,
+                    refine_edges=1,
+                    decode_sharpening=0.25,
+                    debug=0)
 
 def _get_frame():
     global frame
@@ -38,23 +45,29 @@ def _get_frame():
         sleep(0.01)
 
     try:
-        pid_x = PID(10, 0, 0, 100)
-        pid_y = PID(10, 0, 0, 100)
+        pid_x = PID(5, 0, 0, 100)
+        pid_y = PID(5, 0, 0, 100)
         while True:
             if video.frame_available():
+                # print("\n\n\nFrame found\n\n\n")
                 frame = video.frame()
-                powers = process(frame, pid_x, pid_y)
+                powers = process(frame, pid_x, pid_y, at_detector)
+                if not powers:
+                    continue
                 lateral_power = powers[0]
                 vertical_power = powers[1]
-                _send_rc()
+                print(powers)
                 
     except KeyboardInterrupt:
         return
 
 
 def _send_rc():
-    bluerov.set_vertical_power(vertical_power)
-    bluerov.set_lateral_power(lateral_power)
+    global vertical_power, lateral_power
+    while True:
+        bluerov.arm()
+        bluerov.set_vertical_power(int(vertical_power))
+        bluerov.set_lateral_power(int(lateral_power))
 
 
 # Start the video thread
