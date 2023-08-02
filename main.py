@@ -61,7 +61,7 @@ def _get_frame():
                     continue
                 lateral_power = powers[1]
                 vertical_power = powers[0]
-                # print(f'{lateral_power} {vertical_power}')
+                print(f'{lateral_power} {vertical_power}')
                 
     except KeyboardInterrupt:
         return
@@ -69,10 +69,12 @@ def _get_frame():
 
 def _send_rc():
     global vertical_power, lateral_power
+    bluerov.arm()
+    bluerov.mav_connection.set_mode(19)
     while True:
         bluerov.arm()
-        bluerov.set_vertical_power(int(vertical_power))
-        bluerov.set_lateral_power(int(lateral_power))
+        # bluerov.set_vertical_power(int(vertical_power))
+        # bluerov.set_lateral_power(int(lateral_power))
 
 
 # Start the video thread
@@ -83,6 +85,8 @@ video_thread.start()
 rc_thread = Thread(target=_send_rc)
 rc_thread.start()
 
+# bluerov.set_rc_channels_to_neutral()
+# bluerov.disarm()
 # Main loop
 try:
     while True:
@@ -90,5 +94,6 @@ try:
 except KeyboardInterrupt:
     video_thread.join()
     rc_thread.join()
+    bluerov.set_rc_channels_to_neutral()
     bluerov.disarm()
     print("Exiting...")

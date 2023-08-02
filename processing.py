@@ -78,10 +78,10 @@ def get_errors(color_img, tags, draw):
     
 
     avg_x_error = (color_img.shape[0]/2 - center_y) / color_img.shape[0]
-    avg_y_error = (color_img.shape[1]/2 - center_x) / color_img.shape[1]
+    avg_y_error = -(color_img.shape[1]/2 - center_x) / color_img.shape[1]
 
-    print("x error ", (color_img.shape[0]/2 - center_y))
-    print("y error ", (color_img.shape[1]/2 - center_x) )
+    # print("x error ", (color_img.shape[0]/2 - center_y))
+    # print("y error ", (color_img.shape[1]/2 - center_x) )
     
     return [[avg_x_error, avg_y_error], [center_x, center_y]]
 
@@ -118,14 +118,12 @@ def draw_powers(color_img, powers):
     str_x_out = "x_output: " + str(x_output)
     str_y_out = "y_output: " + str(y_output)
 
-    x_side_offset = 100
-    top_offset = 100
-
-    y_side_offset = 100
+    side_offset = 50
+    top_offset = 50
 
     text_thickness = 2
-    cv2.putText(color_img, str_x_out, (int(x_side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), text_thickness, cv2.LINE_AA) 
-    cv2.putText(color_img, str_y_out, (int(width - y_side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), text_thickness, cv2.LINE_AA)
+    cv2.putText(color_img, str_x_out, (int(side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), text_thickness, cv2.LINE_AA) 
+    cv2.putText(color_img, str_y_out, (int(side_offset),int(height - top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), text_thickness, cv2.LINE_AA)
 
 def get_dimensions(color_img):
     return color_img.shape
