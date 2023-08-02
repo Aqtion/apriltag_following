@@ -115,14 +115,12 @@ def draw_powers(color_img, powers):
     str_x_out = "x_output: " + str(x_output)
     str_y_out = "y_output: " + str(y_output)
 
-    x_side_offset = 100
-    top_offset = 100
-
-    y_side_offset = 100
+    side_offset = 50
+    top_offset = 50
 
     text_thickness = 2
-    cv2.putText(color_img, str_x_out, (int(x_side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), text_thickness, cv2.LINE_AA) 
-    cv2.putText(color_img, str_y_out, (int(width - y_side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), text_thickness, cv2.LINE_AA)
+    cv2.putText(color_img, str_x_out, (int(side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), text_thickness, cv2.LINE_AA) 
+    cv2.putText(color_img, str_y_out, (int(side_offset),int(height - top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), text_thickness, cv2.LINE_AA)
 
 def get_dimensions(color_img):
     return color_img.shape
