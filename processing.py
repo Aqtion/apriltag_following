@@ -6,7 +6,7 @@ def get_tags(frame, at_detector):
     dimensions = frame.shape
     height = dimensions[0]/2
     width = dimensions[1]/2
-    cameraMatrix = np.array([ 1060.71, 0, 960, 0, 1060.71, 540, 0, 0, 1]).reshape((3,3))
+    cameraMatrix = np.array([ 353.571428571, 0, 320, 0, 353.571428571, 180, 0, 0, 1]).reshape((3,3))
     camera_params = ( cameraMatrix[0,0], cameraMatrix[1,1], cameraMatrix[0,2], cameraMatrix[1,2] )
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     tags = at_detector.detect(gray, estimate_tag_pose=True, camera_params = camera_params, tag_size=0.1)
@@ -118,7 +118,7 @@ def draw_powers(color_img, powers):
     x_side_offset = 100
     top_offset = 100
 
-    y_side_offset = 600
+    y_side_offset = 100
 
     txt_thicc = 2
     cv2.putText(color_img, str_x_out, (int(x_side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), txt_thicc, cv2.LINE_AA) 
