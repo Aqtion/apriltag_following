@@ -120,9 +120,9 @@ def draw_powers(color_img, powers):
 
     y_side_offset = 600
 
-    txt_thicc = 2
-    cv2.putText(color_img, str_x_out, (int(x_side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), txt_thicc, cv2.LINE_AA) 
-    cv2.putText(color_img, str_y_out, (int(width - y_side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), txt_thicc, cv2.LINE_AA)
+    text_thickness = 2
+    cv2.putText(color_img, str_x_out, (int(x_side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), text_thickness, cv2.LINE_AA) 
+    cv2.putText(color_img, str_y_out, (int(width - y_side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), text_thickness, cv2.LINE_AA)
 
 def get_dimensions(color_img):
     return color_img.shape
