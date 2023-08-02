@@ -81,6 +81,7 @@ def _get_frame():
                         if not powers:
                             powers = [0,0]
                         heading_power, lane_lateral_power = powers
+                        print(powers)
 
 
                     except:
@@ -94,13 +95,15 @@ def _send_rc():
     global vertical_power, lateral_power
     while True:
         bluerov.arm()
-        bluerov.set_vertical_power(int(vertical_power))
+        # bluerov.set_vertical_power(int(vertical_power))
         if predator:
-            bluerov.set_lateral_power(int(lateral_power))
+            pass
+            # bluerov.set_lateral_power(int(lateral_power))
         else:
-            bluerov.set_lateral_power(int(lane_lateral_power))
+            pass
+            # bluerov.set_lateral_power(int(lane_lateral_power))
             
-        bluerov.set_yaw_rate_power(int(heading_power))
+        # bluerov.set_yaw_rate_power(int(heading_power))
 
 
 
