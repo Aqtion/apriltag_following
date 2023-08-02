@@ -93,8 +93,6 @@ def draw_tag_center(color_img, centers):
     cv2.line(color_img, (int(center_x-crosshair_offset), int(center_y)), (int(center_x+crosshair_offset), int(center_y)), (0,0,255), 5)
     cv2.line(color_img, (int(center_x), int(center_y-crosshair_offset)), (int(center_x), int(center_y+crosshair_offset)), (0,0,255), 5)
 
-    cv2.line(color_img, (int(width), int(height)), (int(center_x), int(center_y)), (255,0,0), 5)
-
 
 def get_powers(errors, pid_x, pid_y):
     x_error = errors[0]
