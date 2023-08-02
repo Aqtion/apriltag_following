@@ -28,7 +28,7 @@ def process(frame, pid_x, pid_y, at_detector):
     tags = tags_img[0]
     color_img = tags_img[1]
 
-    draw_center(color_img)
+    # draw_center(color_img)
 
     try:
         data = get_errors(color_img, tags, True)
@@ -40,11 +40,11 @@ def process(frame, pid_x, pid_y, at_detector):
 
         powers = get_powers(errors, pid_x, pid_y)
 
-        draw_powers(color_img, powers)
+        # draw_powers(color_img, powers)
 
-        draw_tag_center(color_img, centers)
+        # draw_tag_center(color_img, centers)
 
-        draw_line_to_center(color_img, centers)
+        # draw_line_to_center(color_img, centers)
 
         return powers, color_img
     except:
@@ -77,9 +77,12 @@ def get_errors(color_img, tags, draw):
     center_y = center_y / len(tags)
     
 
-    avg_x_error = (color_img.shape[0]/2 - center_x) / color_img.shape[0]
-    avg_y_error = -1 * (color_img.shape[1]/2 - center_y) / color_img.shape[1]
+    avg_x_error = (color_img.shape[0]/2 - center_y) / color_img.shape[0]
+    avg_y_error = (color_img.shape[1]/2 - center_x) / color_img.shape[1]
 
+    print("x error ", (color_img.shape[0]/2 - center_y))
+    print("y error ", (color_img.shape[1]/2 - center_x) )
+    
     return [[avg_x_error, avg_y_error], [center_x, center_y]]
 
 def draw_tag_center(color_img, centers):
