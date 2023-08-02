@@ -28,13 +28,16 @@ frame_available.set()
 vertical_power = 0
 lateral_power = 0
 
-at_detector = Detector(families='tag36h11',
-                    nthreads=1,
-                    quad_decimate=1.0,
-                    quad_sigma=0.0,
-                    refine_edges=1,
-                    decode_sharpening=0.25,
-                    debug=0)
+at_detector = Detector(
+    families="tag36h11",
+    nthreads=1,
+    quad_decimate=1.0,
+    quad_sigma=0.0,
+    refine_edges=1,
+    decode_sharpening=0.25,
+    debug=0,
+)
+
 
 def _get_frame():
     global frame
@@ -45,8 +48,8 @@ def _get_frame():
         sleep(0.01)
 
     try:
-        pid_x = PID(50, 0, 0, 100)
-        pid_y = PID(50, 0, 0, 100)
+        pid_x = PID(30, 0, 0, 100)
+        pid_y = PID(25, 0, 0, 100)
         while True:
             if video.frame_available():
                 # print("\n\n\nFrame found\n\n\n")
@@ -54,23 +57,27 @@ def _get_frame():
                 try:
                     powers, color_img = process(frame, pid_x, pid_y, at_detector)
                 except:
+                    holding_vertical_power = pid_x.update(0)
+                    holding_lateral_power = pid_y.update(0)
                     powers = [0, 0]
                 if not powers:
                     continue
                 lateral_power = powers[1]
                 vertical_power = powers[0]
-                print(f'{lateral_power} {vertical_power}')
-                
+                print(f"{lateral_power} {vertical_power}")
+
     except KeyboardInterrupt:
         return
 
 
 def _send_rc():
     global vertical_power, lateral_power
+    bluerov.arm()
+    bluerov.mav_connection.set_mode(19)
     while True:
         bluerov.arm()
-        bluerov.set_vertical_power(int(vertical_power))
-        bluerov.set_lateral_power(int(lateral_power))
+        # bluerov.set_vertical_power(int(vertical_power))
+        # bluerov.set_lateral_power(int(lateral_power))
 
 
 # Start the video thread
@@ -81,6 +88,8 @@ video_thread.start()
 rc_thread = Thread(target=_send_rc)
 rc_thread.start()
 
+# bluerov.set_rc_channels_to_neutral()
+# bluerov.disarm()
 # Main loop
 try:
     while True:
@@ -88,5 +97,6 @@ try:
 except KeyboardInterrupt:
     video_thread.join()
     rc_thread.join()
+    bluerov.set_rc_channels_to_neutral()
     bluerov.disarm()
     print("Exiting...")
