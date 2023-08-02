@@ -17,9 +17,11 @@ def draw_center(color_img):
     dimensions = color_img.shape
     height = dimensions[0]/2
     width = dimensions[1]/2
-    crosshair_offset = 40
-    cv2.line(color_img, (int(width - crosshair_offset), int(height)), (int(width + crosshair_offset), int(height)), (255,0,0), 5)
-    cv2.line(color_img, (int(width), int(height - crosshair_offset)), (int(width), int(height + crosshair_offset)), (255,0,0), 5)
+    crosshair_offset = 20
+    crosshair_thicc = 2
+
+    cv2.line(color_img, (int(width - crosshair_offset), int(height)), (int(width + crosshair_offset), int(height)), (255,0,0), crosshair_thicc)
+    cv2.line(color_img, (int(width), int(height - crosshair_offset)), (int(width), int(height + crosshair_offset)), (255,0,0), crosshair_thicc)
 
 def process(frame, pid_x, pid_y, at_detector):
     tags_img = get_tags(frame, at_detector)
@@ -88,10 +90,11 @@ def draw_tag_center(color_img, centers):
     center_x = centers[0]
     center_y = centers[1]
 
-    crosshair_offset = 20
+    crosshair_offset = 5
+    crosshair_thicc = 2
 
-    cv2.line(color_img, (int(center_x-crosshair_offset), int(center_y)), (int(center_x+crosshair_offset), int(center_y)), (0,0,255), 5)
-    cv2.line(color_img, (int(center_x), int(center_y-crosshair_offset)), (int(center_x), int(center_y+crosshair_offset)), (0,0,255), 5)
+    cv2.line(color_img, (int(center_x-crosshair_offset), int(center_y)), (int(center_x+crosshair_offset), int(center_y)), (0,0,255), crosshair_thicc)
+    cv2.line(color_img, (int(center_x), int(center_y-crosshair_offset)), (int(center_x), int(center_y+crosshair_offset)), (0,0,255), crosshair_thicc)
 
     cv2.line(color_img, (int(width), int(height)), (int(center_x), int(center_y)), (255,0,0), 5)
 
@@ -108,8 +111,8 @@ def draw_powers(color_img, powers):
     height = dim[0]
     width = dim[1]
 
-    x_output = powers[0]
-    y_output = powers[1]
+    x_output = round(powers[0], 3)
+    y_output = round(powers[1], 3)
 
     str_x_out = "x_output: " + str(x_output)
     str_y_out = "y_output: " + str(y_output)
@@ -119,8 +122,9 @@ def draw_powers(color_img, powers):
 
     y_side_offset = 600
 
-    cv2.putText(color_img, str_x_out, (int(x_side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 5, cv2.LINE_AA) 
-    cv2.putText(color_img, str_y_out, (int(width - y_side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 5, cv2.LINE_AA)
+    txt_thicc = 2
+    cv2.putText(color_img, str_x_out, (int(x_side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), txt_thicc, cv2.LINE_AA) 
+    cv2.putText(color_img, str_y_out, (int(width - y_side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), txt_thicc, cv2.LINE_AA)
 
 def get_dimensions(color_img):
     return color_img.shape
