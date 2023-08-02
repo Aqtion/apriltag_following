@@ -28,13 +28,16 @@ frame_available.set()
 vertical_power = 0
 lateral_power = 0
 
-at_detector = Detector(families='tag36h11',
-                    nthreads=1,
-                    quad_decimate=1.0,
-                    quad_sigma=0.0,
-                    refine_edges=1,
-                    decode_sharpening=0.25,
-                    debug=0)
+at_detector = Detector(
+    families="tag36h11",
+    nthreads=1,
+    quad_decimate=1.0,
+    quad_sigma=0.0,
+    refine_edges=1,
+    decode_sharpening=0.25,
+    debug=0,
+)
+
 
 def _get_frame():
     global frame
@@ -61,8 +64,8 @@ def _get_frame():
                     continue
                 lateral_power = powers[1]
                 vertical_power = powers[0]
-                print(f'{lateral_power} {vertical_power}')
-                
+                print(f"{lateral_power} {vertical_power}")
+
     except KeyboardInterrupt:
         return
 
