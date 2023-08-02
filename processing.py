@@ -33,7 +33,7 @@ def process(frame, pid_x, pid_y, at_detector):
     try:
         data = get_errors(color_img, tags, True)
 
-        print(data)
+        # print(data)
 
         errors = data[0]
         centers = data[1]
@@ -46,7 +46,7 @@ def process(frame, pid_x, pid_y, at_detector):
 
         draw_line_to_center(color_img, centers)
 
-        return [powers, color_img]
+        return powers, color_img
     except:
         pass
 
@@ -77,8 +77,8 @@ def get_errors(color_img, tags, draw):
     center_y = center_y / len(tags)
     
 
-    avg_x_error = x_error / len(tags)
-    avg_y_error = y_error / len(tags)
+    avg_x_error = (color_img.shape[0]/2 - center_x) / color_img.shape[0]
+    avg_y_error = -1 * (color_img.shape[1]/2 - center_y) / color_img.shape[1]
 
     return [[avg_x_error, avg_y_error], [center_x, center_y]]
 
@@ -95,8 +95,6 @@ def draw_tag_center(color_img, centers):
 
     cv2.line(color_img, (int(center_x-crosshair_offset), int(center_y)), (int(center_x+crosshair_offset), int(center_y)), (0,0,255), crosshair_thicc)
     cv2.line(color_img, (int(center_x), int(center_y-crosshair_offset)), (int(center_x), int(center_y+crosshair_offset)), (0,0,255), crosshair_thicc)
-
-    cv2.line(color_img, (int(width), int(height)), (int(center_x), int(center_y)), (255,0,0), 5)
 
 
 def get_powers(errors, pid_x, pid_y):
