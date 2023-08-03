@@ -33,6 +33,7 @@ frame_available.set()
 
 vertical_power = 0
 lateral_power = 0
+longitudinal_power = 0
 
 heading_power = 0
 lane_lateral_power = 0
@@ -49,6 +50,7 @@ def _get_frame():
     global frame
     global vertical_power
     global lateral_power
+    global longitudinal_power
     
     global heading_power
     global lane_lateral_power
@@ -59,6 +61,8 @@ def _get_frame():
     try:
         pid_x = PID(60, 0, 0, 100)
         pid_y = PID(50, 0, 0, 100)
+        # TODO tune the hell out of this
+        pid_z = PID(0.01, 0, 0, 100)
 
 
         while True:
@@ -67,30 +71,33 @@ def _get_frame():
                 frame = video.frame()
                 if predator:
                     try:
-                        powers, color_img = process(frame, pid_x, pid_y, at_detector)
+                        powers, color_img = process(frame, pid_x, pid_y, pid_z, at_detector)
                         output_video.write(color_img)
                     except:
                         powers = [0, 0]
                     if not powers:
                         continue
-                    lateral_power = powers[1]
+
                     vertical_power = powers[0]
-                    print(f'{lateral_power} {vertical_power}')
-                else:
-                    try:
-                        msg = bluerov.recv_match(type="ATTITUDE", blocking=True)
-                        yaw = msg.yaw
-                        yaw_rate = msg.yawspeed
+                    lateral_power = powers[1]
+                    longitudinal_power = powers[2]
 
-                        powers = follow_lane(frame, [yaw, yaw_rate], 49, 50, 3, 500, 40)
-                        if not powers:
-                            powers = [0,0]
-                        heading_power, lane_lateral_power = powers
-                        print(powers)
+                    print(f'{lateral_power} {vertical_power} {longitudinal_power}')
+                # else:
+                #     try:
+                #         msg = bluerov.recv_match(type="ATTITUDE", blocking=True)
+                #         yaw = msg.yaw
+                #         yaw_rate = msg.yawspeed
+
+                #         powers = follow_lane(frame, [yaw, yaw_rate], 49, 50, 3, 500, 40)
+                #         if not powers:
+                #             powers = [0,0]
+                #         heading_power, lane_lateral_power = powers
+                #         print(powers)
 
 
-                    except:
-                        continue
+                #     except:
+                #         continue
                 
     except KeyboardInterrupt:
         output_video.release()
@@ -98,13 +105,14 @@ def _get_frame():
 
 
 def _send_rc():
-    global vertical_power, lateral_power
+    global vertical_power, lateral_power, longitudinal_power
     while True:
         bluerov.arm()
         bluerov.set_vertical_power(int(vertical_power))
         if predator:
             # pass
             bluerov.set_lateral_power(int(lateral_power))
+            bluerov.set_longitudinal_power(int(longitudinal_power))
         else:
             pass
             # bluerov.set_lateral_power(int(lane_lateral_power))

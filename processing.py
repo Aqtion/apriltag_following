@@ -17,11 +17,11 @@ def draw_center(color_img):
     dimensions = color_img.shape
     height = dimensions[0]/2
     width = dimensions[1]/2
-    crosshair_offset = 40
+    crosshair_offset = 20
     cv2.line(color_img, (int(width - crosshair_offset), int(height)), (int(width + crosshair_offset), int(height)), (255,0,0), 5)
     cv2.line(color_img, (int(width), int(height - crosshair_offset)), (int(width), int(height + crosshair_offset)), (255,0,0), 5)
 
-def process(frame, pid_x, pid_y, at_detector):
+def process(frame, pid_x, pid_y, pid_z, at_detector):
     tags_img = get_tags(frame, at_detector)
     tags = tags_img[0]
     color_img = tags_img[1]
@@ -31,12 +31,10 @@ def process(frame, pid_x, pid_y, at_detector):
     try:
         data = get_errors(color_img, tags, True)
 
-        # print(data)
-
         errors = data[0]
         centers = data[1]
 
-        powers = get_powers(errors, pid_x, pid_y)
+        powers = get_powers(errors, pid_x, pid_y, pid_z)
 
         draw_powers(color_img, powers)
 
@@ -49,21 +47,22 @@ def process(frame, pid_x, pid_y, at_detector):
         pass
 
 def get_errors(color_img, tags, draw):
-    x_error = 0
-    y_error = 0
+    z_error = 0
+
     center_x = 0
     center_y = 0
 
     for tag in tags:
         translation_matrix = tag.pose_t.reshape(1,3)
             
-        x = translation_matrix[0][0]
-        y = translation_matrix[0][1]
-        # z = translation_matrix[0][2]
+        # x = translation_matrix[0][0]
+        # y = translation_matrix[0][1]
+        distance_to_tag = translation_matrix[0][2]
 
-        x_error += x
-        y_error += y
-        
+        # x_error += x
+        # y_error += y
+        z_error += distance_to_tag    
+    
         center_x += tag.center[0]
         center_y += tag.center[1]
 
@@ -73,33 +72,35 @@ def get_errors(color_img, tags, draw):
 
     center_x = center_x / len(tags)
     center_y = center_y / len(tags)
+
+    z_error = z_error / len(tags)
     
 
     avg_x_error = (color_img.shape[0]/2 - center_y) / color_img.shape[0]
     avg_y_error = -1 * (color_img.shape[1]/2 - center_x) / color_img.shape[1]
 
-    return [[avg_x_error, avg_y_error], [center_x, center_y]]
+    return [[avg_x_error, avg_y_error, z_error], [center_x, center_y]]
 
 def draw_tag_center(color_img, centers):
-    dim = get_dimensions(color_img)
-    height = dim[0]/2
-    width = dim[1]/2
-
     center_x = centers[0]
     center_y = centers[1]
 
-    crosshair_offset = 20
+    crosshair_offset = 5
 
     cv2.line(color_img, (int(center_x-crosshair_offset), int(center_y)), (int(center_x+crosshair_offset), int(center_y)), (0,0,255), 5)
     cv2.line(color_img, (int(center_x), int(center_y-crosshair_offset)), (int(center_x), int(center_y+crosshair_offset)), (0,0,255), 5)
 
 
-def get_powers(errors, pid_x, pid_y):
+def get_powers(errors, pid_x, pid_y, pid_z):
     x_error = errors[0]
     y_error = errors[1]
+    z_error = errors[2]
+
     x_output = pid_x.update(x_error)
     y_output = pid_y.update(y_error)
-    return [x_output, y_output]
+    z_output = pid_z.update(z_error)
+
+    return [x_output, y_output, z_output]
 
 def draw_powers(color_img, powers):
     dim = get_dimensions(color_img)
@@ -108,17 +109,21 @@ def draw_powers(color_img, powers):
 
     x_output = powers[0]
     y_output = powers[1]
+    z_output = powers[2]
 
     str_x_out = "x_output: " + str(x_output)
     str_y_out = "y_output: " + str(y_output)
+    str_z_out = "z_output: " + str(z_output)
 
     x_side_offset = 100
     top_offset = 100
 
-    y_side_offset = 600
+    y_side_offset = 100
+
 
     cv2.putText(color_img, str_x_out, (int(x_side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 5, cv2.LINE_AA) 
     cv2.putText(color_img, str_y_out, (int(width - y_side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 5, cv2.LINE_AA)
+    cv2.putText(color_img, str_z_out, (int(x_side_offset),int(height - top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 5, cv2.LINE_AA)
 
 def get_dimensions(color_img):
     return color_img.shape
