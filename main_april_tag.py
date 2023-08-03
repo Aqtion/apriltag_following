@@ -48,8 +48,8 @@ def _get_frame():
         sleep(0.01)
 
     try:
-        pid_x = PID(30, 0, 0, 100)
-        pid_y = PID(25, 0, 0, 100)
+        pid_x = PID(75, 0, 0, 100)
+        pid_y = PID(60, 0, 0, 100)
         while True:
             if video.frame_available():
                 # print("\n\n\nFrame found\n\n\n")
@@ -76,8 +76,8 @@ def _send_rc():
     bluerov.mav_connection.set_mode(19)
     while True:
         bluerov.arm()
-        # bluerov.set_vertical_power(int(vertical_power))
-        # bluerov.set_lateral_power(int(lateral_power))
+        bluerov.set_vertical_power(int(vertical_power))
+        bluerov.set_lateral_power(int(lateral_power))
 
 
 # Start the video thread
@@ -87,6 +87,8 @@ video_thread.start()
 # Start the RC thread
 rc_thread = Thread(target=_send_rc)
 rc_thread.start()
+
+bluerov.set_rc_channel(9, 1600)
 
 # bluerov.set_rc_channels_to_neutral()
 # bluerov.disarm()
