@@ -13,6 +13,10 @@ from lane_processing import *
 
 predator = True
 
+output_file = 'output_video.avi'
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+output_video = cv2.VideoWriter(output_file, fourcc, 30, (640, 360))
+
 # Create the video object
 video = Video()
 # Create the PID object
@@ -53,7 +57,7 @@ def _get_frame():
         sleep(0.01)
 
     try:
-        pid_x = PID(50, 0, 0, 100)
+        pid_x = PID(60, 0, 0, 100)
         pid_y = PID(50, 0, 0, 100)
 
 
@@ -64,6 +68,7 @@ def _get_frame():
                 if predator:
                     try:
                         powers, color_img = process(frame, pid_x, pid_y, at_detector)
+                        output_video.write(color_img)
                     except:
                         powers = [0, 0]
                     if not powers:
@@ -88,6 +93,7 @@ def _get_frame():
                         continue
                 
     except KeyboardInterrupt:
+        output_video.release()
         return
 
 
@@ -95,10 +101,10 @@ def _send_rc():
     global vertical_power, lateral_power
     while True:
         bluerov.arm()
-        # bluerov.set_vertical_power(int(vertical_power))
+        bluerov.set_vertical_power(int(vertical_power))
         if predator:
-            pass
-            # bluerov.set_lateral_power(int(lateral_power))
+            # pass
+            bluerov.set_lateral_power(int(lateral_power))
         else:
             pass
             # bluerov.set_lateral_power(int(lane_lateral_power))
