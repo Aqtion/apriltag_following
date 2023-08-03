@@ -1,6 +1,8 @@
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.spatial.transform import Rotation as R
+from heading_control import *
 
 def get_tags(frame, at_detector):
     dimensions = frame.shape
@@ -21,7 +23,7 @@ def draw_center(color_img):
     cv2.line(color_img, (int(width - crosshair_offset), int(height)), (int(width + crosshair_offset), int(height)), (255,0,0), 5)
     cv2.line(color_img, (int(width), int(height - crosshair_offset)), (int(width), int(height + crosshair_offset)), (255,0,0), 5)
 
-def process(frame, pid_x, pid_y, at_detector):
+def process(frame, pid_x, pid_y, pid_heading, at_detector, yaw, yaw_rate):
     tags_img = get_tags(frame, at_detector)
     tags = tags_img[0]
     color_img = tags_img[1]
@@ -36,7 +38,7 @@ def process(frame, pid_x, pid_y, at_detector):
         errors = data[0]
         centers = data[1]
 
-        powers = get_powers(errors, pid_x, pid_y)
+        powers = get_powers(errors, pid_x, pid_y, pid_heading, yaw, yaw_rate)
 
         draw_powers(color_img, powers)
 
@@ -53,16 +55,21 @@ def get_errors(color_img, tags, draw):
     y_error = 0
     center_x = 0
     center_y = 0
+    theta_error = 0
 
     for tag in tags:
         translation_matrix = tag.pose_t.reshape(1,3)
+        rotation_matrix = tag.pose_R
+        rotations = R.from_matrix(rotation_matrix)
             
         x = translation_matrix[0][0]
         y = translation_matrix[0][1]
+        theta = R.from_euler('zyx', rotations, degrees = True)[1]
         # z = translation_matrix[0][2]
 
         x_error += x
         y_error += y
+        theta_error += theta
         
         center_x += tag.center[0]
         center_y += tag.center[1]
@@ -77,8 +84,9 @@ def get_errors(color_img, tags, draw):
 
     avg_x_error = (color_img.shape[0]/2 - center_x) / color_img.shape[0]
     avg_y_error = -1 * (color_img.shape[1]/2 - center_y) / color_img.shape[1]
+    avg_theta_error = theta_error / len(tags)
 
-    return [[avg_x_error, avg_y_error], [center_x, center_y]]
+    return [[avg_x_error, avg_y_error, avg_theta_error], [center_x, center_y]]
 
 def draw_tag_center(color_img, centers):
     dim = get_dimensions(color_img)
@@ -94,12 +102,15 @@ def draw_tag_center(color_img, centers):
     cv2.line(color_img, (int(center_x), int(center_y-crosshair_offset)), (int(center_x), int(center_y+crosshair_offset)), (0,0,255), 5)
 
 
-def get_powers(errors, pid_x, pid_y):
+def get_powers(errors, pid_x, pid_y, pid_heading, yaw, yaw_rate):
     x_error = errors[0]
     y_error = errors[1]
+    heading_error = errors[2]
     x_output = pid_x.update(x_error)
     y_output = pid_y.update(y_error)
-    return [x_output, y_output]
+    heading_output = get_to_heading(pid_heading, yaw + heading_error, yaw, yaw_rate)
+
+    return [x_output, y_output, heading_output]
 
 def draw_powers(color_img, powers):
     dim = get_dimensions(color_img)

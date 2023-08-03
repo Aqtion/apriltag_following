@@ -55,6 +55,7 @@ def _get_frame():
     try:
         pid_x = PID(50, 0, 0, 100)
         pid_y = PID(50, 0, 0, 100)
+        pid_heading = PID(30, 0, -0.5, 100)
 
 
         while True:
@@ -63,14 +64,15 @@ def _get_frame():
                 frame = video.frame()
                 if predator:
                     try:
-                        powers, color_img = process(frame, pid_x, pid_y, at_detector)
+                        powers, color_img = process(frame, pid_x, pid_y, pid_heading, at_detector)
                     except:
                         powers = [0, 0]
                     if not powers:
                         continue
+                    heading_power = powers[2]
                     lateral_power = powers[1]
                     vertical_power = powers[0]
-                    print(f'{lateral_power} {vertical_power}')
+                    print(f'{lateral_power} {vertical_power} {heading_power}')
                 else:
                     try:
                         msg = bluerov.recv_match(type="ATTITUDE", blocking=True)

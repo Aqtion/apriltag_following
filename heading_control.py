@@ -2,9 +2,7 @@ from pid import PID
 import numpy as np
 
 
-pid = PID(30, 0, -0.5, 100)
-
-def get_to_heading(desired_heading, current_heading, yaw_rate):
+def get_to_heading(pid_heading, desired_heading, current_heading, yaw_rate):
     if desired_heading_deg > np.pi:
         desired_heading_deg = desired_heading_deg - 2*np.pi
 
@@ -29,14 +27,14 @@ def get_to_heading(desired_heading, current_heading, yaw_rate):
 
     if c_e < cc_e:
         error = clockwise_error
-        output = pid.update(error, error_derivative=yaw_rate)
+        output = pid_heading.update(error, error_derivative=yaw_rate)
     elif c_e > cc_e:
         error = counter_clockwise_error
-        output = pid.update(error, error_derivative=yaw_rate)
+        output = pid_heading.update(error, error_derivative=yaw_rate)
 
     print("Error: ", np.rad2deg(error))
 
-    output = pid.update(error, error_derivative=yaw_rate)
+    output = pid_heading.update(error, error_derivative=yaw_rate)
     print("Output: ", output)
 
     return output
