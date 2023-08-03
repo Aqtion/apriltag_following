@@ -1,8 +1,6 @@
 from threading import Thread, Event
 from time import sleep
 from dt_apriltags import Detector
-import cv2
-import matplotlib.pyplot as plt
 import numpy as np
 from pid import PID
 from video import Video
@@ -60,10 +58,17 @@ def _get_frame():
 
                 try:
                     b, m = process_image(frame)
-                    delta = math.PI / 2 - math.atan(m)
+                    delta = math.pi / 2 - (
+                        math.atan(m) if (math.atan(m) > 0) else math.atan(m) + math.pi
+                    )
                     lateral_offset = (b - width) / width
-                except:
+                except Exception as e:
+                    print(e)
                     delta, lateral_offset = 0, 0
+
+                print(
+                    f"Heading Error: {np.rad2deg(yaw_power)} degrees, Lateral Error: {lateral_power}"
+                )
 
                 yaw_power = heading_pid.update(delta)
                 lateral_power = lateral_pid.update(lateral_offset)

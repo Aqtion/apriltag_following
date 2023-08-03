@@ -1,8 +1,6 @@
 from lane_detection import (
     detect_lanes,
     detect_lines,
-    draw_lines,
-    draw_lanes,
     get_slopes_intercepts,
 )
 
@@ -14,7 +12,7 @@ def get_lane_center(lanes, x_center, height):
         for pair in lanes[1:]:
             lane = [[x.tolist()] for x in pair]
 
-            # Debug, wrong intercept(use bottom instead of top)
+            # Finds the slopes and intercepts of the lanes
             _, intercepts_0 = get_slopes_intercepts(center_lane, height)
             _, intercepts_1 = get_slopes_intercepts(lane, height)
 
@@ -61,20 +59,12 @@ def process_image(img):
     height, width, channels = img.shape
 
     # lines = detect_lines(img, 40, 70, 5, 50, 30) (land)
-    lines = detect_lines(img, 5, 70, 3, 300, 100) # water
+    lines = detect_lines(img, 5, 70, 3, 300, 100)  # water
 
     lanes = detect_lanes(lines, height, width)
 
     if len(lanes) < 1:
         return None, None
-
-    print("Lanes found.")
-
-    # center_lane = get_lane_center(lanes, img.shape[0] / 2, img.shape[1])
-
-    # img = draw_lanes(img, center_lane, height)
-
-    # img = draw_lanes(img, lanes, height)
 
     b, m = get_lane_center(lanes, img.shape[0] / 2, img.shape[1])
 
