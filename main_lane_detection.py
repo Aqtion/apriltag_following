@@ -17,7 +17,7 @@ pid_vertical = PID(K_p=0.1, K_i=0.0, K_d=0.01, integral_limit=1)
 pid_horizontal = PID(K_p=0.1, K_i=0.0, K_d=0.01, integral_limit=1)
 # Create the mavlink connection
 mav_comn = mavutil.mavlink_connection("udpin:0.0.0.0:14550")
-# Create the BlueROV object
+# Creates the BlueROV object
 bluerov = BlueROV(mav_connection=mav_comn)
 
 frame = None
