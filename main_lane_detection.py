@@ -49,8 +49,8 @@ def _get_frame():
         sleep(0.01)
 
     try:
-        lateral_pid = PID(5, 0, 0, 0.9)
-        heading_pid = PID(10, 0, 0, 1.3)
+        lateral_pid = PID(50, 0, 0, 0.9)
+        heading_pid = PID(25, 0, 0, 1.3)
 
         while True:
             if video.frame_available():
@@ -62,13 +62,15 @@ def _get_frame():
                     b, m = process_image(frame)
                     delta = math.PI / 2 - math.atan(m)
                     lateral_offset = (b - width) / width
+
+                    print(f"Delta: {delta}, Offset: {lateral_offset}")
                 except:
                     delta, lateral_offset = 0, 0
 
-                yaw_power = heading_pid.update(delta)
-                lateral_power = lateral_pid.update(lateral_offset)
+                # yaw_power = heading_pid.update(delta)
+                # lateral_power = lateral_pid.update(lateral_offset)
 
-                print(f"Heading Output: {yaw_power}, Lateral Output: {lateral_power}")
+                # print(f"Heading Output: {yaw_power}, Lateral Output: {lateral_power}")
 
     except KeyboardInterrupt:
         return
