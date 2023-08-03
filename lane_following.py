@@ -4,15 +4,17 @@ from lane_detection import (
     get_slopes_intercepts,
 )
 
+import cv2
+
 
 def get_lane_center(lanes, x_center, height):
-    center_lane = [[x.tolist()] for x in lanes[0]]
+    center_lane = [[x] for x in lanes[0]]
 
     if len(lanes) > 1:
         for pair in lanes[1:]:
-            lane = [[x.tolist()] for x in pair]
+            lane = [[x] for x in pair]
 
-            # Finds the slopes and intercepts of the lanes
+            # Debug, wrong intercept(use bottom instead of top)
             _, intercepts_0 = get_slopes_intercepts(center_lane, height)
             _, intercepts_1 = get_slopes_intercepts(lane, height)
 
@@ -23,10 +25,80 @@ def get_lane_center(lanes, x_center, height):
                 center_lane = lane
 
     slopes, intercepts = get_slopes_intercepts(center_lane, height)
-    m, b = (sum(slopes) / len(slopes), sum(intercepts) / len(intercepts))
+    b = sum(intercepts) / len(intercepts)
 
-    return b, m
-    # return center_lane
+    return b, center_lane
+
+
+def draw_lane_center(img, center_lane, height):
+    if len(center_lane) > 1:
+        slopes, intercepts = get_slopes_intercepts(center_lane, height)
+
+        slope = sum(slopes) / len(slopes)
+        intercept = sum(intercepts) / len(intercepts)
+
+        lane_0, lane_1 = center_lane
+
+        x11, y11, x12, y12 = lane_0[0]
+
+        try:
+            m_0 = (y12 - y11) / (x12 - x11)
+        except:
+            m_0 = 1.01e2
+
+        x21, y21, x22, y22 = lane_1[0]
+
+        try:
+            m_1 = (y22 - y21) / (x22 - x21)
+        except:
+            m_1 = 1e2
+
+        # m1(x - x1) = m2(x-x2)
+
+        x_int1 = 0
+        x_int2 = 0
+
+        if y11 > y12:
+            x_int1 = x11
+        elif y12 > y11:
+            x_int1 = x12
+
+        if y21 > y22:
+            x_int2 = x21
+        elif y22 > y21:
+            x_int2 = x22
+
+        try:
+            x_intersection = (m_1 * x_int2 - m_0 * x_int1) / (m_1 - m_0)
+        except:
+            x_intersection = (x_int1 + x_int2) / 2
+
+        y_intersection = m_0 * (x_intersection - x_int1) + height
+
+        m_final = (height - y_intersection) / (intercept - x_intersection)
+
+        # img = cv2.line(
+        #     img,
+        #     (int(intercept), height),
+        #     (int(x_intersection), int(y_intersection)),
+        #     (255, 0, 0),
+        #     4,
+        # )
+
+    else:
+        x1, y1, x2, y2 = center_lane[0][0]
+
+        m_final = (y2 - y1) / (x2 - x1)
+
+        # img = cv2.line(
+        #     img,
+        #     (int(x1), int(y1)),
+        #     (int(x2), int(y2)),
+        #     (255, 0, 0),
+        #     4,
+        # )
+
+    return m_final
 
 
 def recommend_strafe_direction(center, slope, width):
@@ -58,14 +130,21 @@ def recommend_strafe_direction(center, slope, width):
 def process_image(img):
     height, width, channels = img.shape
 
-    # lines = detect_lines(img, 40, 70, 5, 50, 30) (land)
-    lines = detect_lines(img, 5, 70, 3, 300, 100)  # water
+    # lines = detect_lines(img, 30, 50, 3, 50, 30)  # (land)
+    lines = detect_lines(img, 5, 70, 3, 50, 16)  # (underwater)
 
-    lanes = detect_lanes(lines, height, width)
+    if len(lines) < 1:
+        return width / 2, 1e4, img
+
+    lanes = detect_lanes(lines, width, height)
 
     if len(lanes) < 1:
-        return None, None
+        return width / 2, 1e4, img
 
-    b, m = get_lane_center(lanes, img.shape[0] / 2, img.shape[1])
+    b, center_lane = get_lane_center(lanes, width / 2, height)
 
-    return b, m
+    m_final = draw_lane_center(img, center_lane, height)
+
+    # return b, m, img
+
+    return b, m_final

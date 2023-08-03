@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def detect_lines(
@@ -10,15 +11,12 @@ def detect_lines(
     minLineLength: int = 100,
     maxLineGap: int = 10,
 ):
-    # min_threshold = 80  # Land
-    min_threshold = 100  # Underwater(Tune)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  # convert to grayscale
 
-    blur = cv2.GaussianBlur(img, (5, 5), 0)
-    gray = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)  # convert to grayscale
-    ret, threshold = cv2.threshold(gray, min_threshold, 255, cv2.THRESH_BINARY)
     edges = cv2.Canny(
-        threshold, threshold1, threshold2, apertureSize=apertureSize
+        gray, threshold1, threshold2, apertureSize=apertureSize
     )  # detect edges
+
     lines = cv2.HoughLinesP(
         edges,
         1,
@@ -68,9 +66,9 @@ def detect_lanes(lines, width, height):
 
     # Underwater Parameters
     m_tol = 3e0
-    b_tol = width / 4
-    dm_min = 1e-1
-    db_min = width / 20
+    b_tol = width / 3
+    dm_min = 2e-2
+    db_min = width / 80
     horizontal_tol = 1e2
     vertical_threshold = height / 2
 
@@ -78,8 +76,8 @@ def detect_lanes(lines, width, height):
     # m_tol = 2e0
     # b_tol = 3e2
     # dm_min = 0e-2
-    # db_min = 5e0
-    # horizontal_tol = 1e2
+    # db_min = 1e2
+    # horizontal_tol = 5e1
     # vertical_threshold = 1e2
 
     used = []
@@ -109,14 +107,15 @@ def detect_lanes(lines, width, height):
                 abs(intercepts[i_1] - intercepts[i_0]) > db_min
                 and abs(1 / slopes[i_1] - 1 / slopes[i_0]) > dm_min
             ):
-                lanes.append([lines[i_0][0], lines[i_1][0]])
+                lanes.append([lines[i_0][0].tolist(), lines[i_1][0].tolist()])
                 appended = True
 
                 used.append(i_0)
                 used.append(i_1)
 
         if not appended:
-            lanes.append([lines[i_0][0]])
+            # print("Not paired")
+            lanes.append([lines[i_0][0].tolist()])
             used.append(i_0)
 
     return lanes
@@ -127,7 +126,6 @@ def draw_lanes(img, lanes, height):
 
     m_tol = 1e2
     dx_tol = 1e-3
-    mul_constant = 1e6
 
     for pair in lanes:
         for line in pair:
@@ -143,8 +141,8 @@ def draw_lanes(img, lanes, height):
             m = np.clip((y2 - y1) / dx, -m_tol, m_tol)
 
             b_1 = x1 + ((height - y1) / m)
-            b_2 = x1 + ((height / 3 - y1) / m)
-            lines.append([[b_1, height, b_2, height / 3]])
+            b_2 = x1 + ((height / 2 - y1) / m)
+            lines.append([[b_1, height, b_2, height / 2]])
 
     img = draw_lines(img, lines, (0, 255, 0))
 
@@ -154,8 +152,8 @@ def draw_lanes(img, lanes, height):
 def process_image(img):
     height = img.shape[0]
 
-    # lines = detect_lines(img, 40, 70, 5, 50, 30) (land)
-    lines = detect_lines(img, 5, 70, 3, 250, 100)
+    # lines = detect_lines(img, 40, 70, 5, 50, 30) # (land)
+    lines = detect_lines(img, 5, 70, 3, 250, 100)  # underwater
 
     if lines is None:
         return img

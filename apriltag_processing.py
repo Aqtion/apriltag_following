@@ -199,6 +199,7 @@ def draw_line_to_center(color_img, centers):
 
     center_x = centers[0]
     center_y = centers[1]
+
     cv2.line(
         color_img,
         (int(width), int(height)),

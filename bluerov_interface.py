@@ -80,20 +80,6 @@ class BlueROV:
         pwm_value = 1500 + value * 4
         self.set_rc_channel(3, pwm_value)
 
-    def set_rotation_power(self, mav, power=0):
-        """Set rotation power
-        Args:
-            power (int, optional): Power value -100-100
-        """
-        if power < -100 or power > 100:
-            print("Power value out of range.")
-            power = np.clip(power, -100, 100)
-
-        power = int(power)
-
-        pwm_value = 1500 + power * 5
-        self.set_rc_channel(4, pwm_value)
-
     def set_yaw_rate_power(self, value):
         """Set the yaw rate power channel"""
         if value > 100 or value < -100:
@@ -101,5 +87,5 @@ class BlueROV:
             print("Cliping value to -100 or 100")
             value = np.clip(value, -100, 100)
 
-        pwm_value = 1500 + value * 4
+        pwm_value = int(1500 + value * 4)
         self.set_rc_channel(3, pwm_value)

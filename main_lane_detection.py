@@ -61,7 +61,7 @@ def _get_frame():
                     delta = math.pi / 2 - (
                         math.atan(m) if (math.atan(m) > 0) else math.atan(m) + math.pi
                     )
-                    lateral_offset = (b - width) / width
+                    lateral_offset = (b - width / 2) / width
                 except Exception as e:
                     print(e)
                     delta, lateral_offset = 0, 0
