@@ -1,6 +1,8 @@
 from lane_detection import (
     detect_lanes,
     detect_lines,
+    draw_lanes,
+    draw_lines  ,
     get_slopes_intercepts,
 )
 
@@ -25,11 +27,10 @@ def get_lane_center(lanes, x_center, height):
     slopes, intercepts = get_slopes_intercepts(center_lane, height)
     m, b = (sum(slopes) / len(slopes), sum(intercepts) / len(intercepts))
 
-    # print(center_lane)
     print((b, m))
 
-    return b, m
-    # return center_lane
+    # return b, m
+    return center_lane
 
 
 def recommend_strafe_direction(center, slope, width):
@@ -62,13 +63,18 @@ def process_image(img):
     height, width, channels = img.shape
 
     # lines = detect_lines(img, 40, 70, 5, 50, 30) (land)
-    lines = detect_lines(img, 5, 70, 3, 300, 100)  # water
+    # lines = detect_lines(img, 5, 70, 3, 300, 100)  # water
+    lines = detect_lines(img, 10, 100, 3, 50, 40)
 
     lanes = detect_lanes(lines, height, width)
 
     if len(lanes) < 1:
         return None, None
 
-    b, m = get_lane_center(lanes, img.shape[0] / 2, img.shape[1])
+    # b, m = get_lane_center(lanes, img.shape[0] / 2, img.shape[1])
+    lane = get_lane_center(lanes, img.shape[0] / 2, img.shape[1])
 
-    return b, m
+    draw = draw_lanes(img, lines, height)
+
+    # return b, m
+    return draw

@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 def detect_lines(
     img,
@@ -11,14 +11,21 @@ def detect_lines(
     maxLineGap: int = 10,
 ):
     # min_threshold = 80  # Land
-    min_threshold = 100  # Underwater(Tune)
+    # min_threshold = 100  # Underwater(Tune)
 
-    blur = cv2.GaussianBlur(img, (5, 5), 0)
+    blur = cv2.GaussianBlur(img, (3, 3), 0)
+
     gray = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)  # convert to grayscale
-    ret, threshold = cv2.threshold(gray, min_threshold, 255, cv2.THRESH_BINARY)
+
+    # ret, threshold = cv2.threshold(gray, min_threshold, 255, cv2.THRESH_BINARY)
+
     edges = cv2.Canny(
-        threshold, threshold1, threshold2, apertureSize=apertureSize
+        gray, threshold1, threshold2, apertureSize=apertureSize
     )  # detect edges
+
+    plt.imshow(edges)
+    plt.show()
+
     lines = cv2.HoughLinesP(
         edges,
         1,

@@ -25,7 +25,7 @@ frame_available = Event()
 frame_available.set()
 
 yaw_power = 0
-lateral_power = 0
+lane_lateral_power = 0
 
 at_detector = Detector(
     families="tag36h11",
@@ -42,6 +42,9 @@ def _get_frame():
     global frame
     global vertical_power
     global lateral_power
+
+    global yaw_power
+    global lane_lateral_power
     while not video.frame_available():
         print("Waiting for frame...")
         sleep(0.01)
@@ -61,12 +64,14 @@ def _get_frame():
                     delta = math.pi / 2 - (
                         math.atan(m) if (math.atan(m) > 0) else math.atan(m) + math.pi
                     )
-                    lateral_offset = (b - width) / width
+                    lateral_offset = (b - width / 2) / width
                 except:
                     delta, lateral_offset = 0, 0
+                
+                print(f"Delta: {delta}, Lateral Offset: {lateral_offset}")
 
                 yaw_power = heading_pid.update(delta)
-                lateral_power = lateral_pid.update(lateral_offset)
+                lane_lateral_power = lateral_pid.update(lateral_offset)
 
                 # print(f"Heading Output: {yaw_power}, Lateral Output: {lateral_power}")
 
@@ -76,10 +81,11 @@ def _get_frame():
 
 def _send_rc():
     global yaw_power, lateral_power
+    bluerov.set_rc_channels_to_neutral()
     while True:
         bluerov.arm()
         bluerov.set_yaw_rate_power(yaw_power)
-        bluerov.set_lateral_power(int(lateral_power))
+        bluerov.set_lateral_power(int(lane_lateral_power))
 
 
 # Start the video thread
