@@ -79,15 +79,12 @@ def _get_frame():
                         yaw = msg.yaw
                         yaw_rate = msg.yawspeed
 
-                        #print(yaw_rate)
-
-                        # print("Heading: ", np.rad2deg(yaw))
-
                         powers, color_img = process(frame, pid_x, pid_y, pid_heading, pid_z, at_detector, yaw, yaw_rate)
                         
                         output_video.write(color_img)
                     except:
-                        powers = [0, 0, 0, 0]
+                        # need to search for tag, keep turning until we find it
+                        powers = [0, 0, 0, 20]
                     if not powers:
                         continue
                    
@@ -96,25 +93,6 @@ def _get_frame():
                     longitudinal_power = powers[2]
                     heading_power = powers[3]
                     
-                    # if not heading_power  == 0:
-                    print(f"heading_power: {heading_power}")
-                    # print(f'{lateral_power} {vertical_power} {longitudinal_power} {heading_power}')
-                # else:
-                #     try:
-                #         msg = bluerov.recv_match(type="ATTITUDE", blocking=True)
-                #         yaw = msg.yaw 
-                #         yaw_rate = msg.yawspeed
-
-                #         powers = follow_lane(frame, [yaw, yaw_rate], 49, 50, 3, 500, 40)
-                #         if not powers:
-                #             powers = [0,0]
-                #         heading_power, lane_lateral_power = powers
-                #         print(powers)
-
-
-                #     except:
-                #         continue
-                
     except KeyboardInterrupt:
         output_video.release()
         return
