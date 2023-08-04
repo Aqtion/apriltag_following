@@ -3,40 +3,24 @@ import numpy as np
 
 
 def get_to_heading(pid_heading, desired_heading, current_heading, yaw_rate):
-    if desired_heading_deg > np.pi:
-        desired_heading_deg = desired_heading_deg - 2*np.pi
+    yaw = yaw % (2 * np.pi)
 
-    desired_heading = np.deg2rad(desired_heading_deg)
+    # calculate error
+    error = desired_heading - yaw
 
-    clockwise_error = (desired_heading - current_heading) % (2 * np.pi)
+    # Implementation by mapping to sine
+    error = error % (2 * np.pi) - np.pi
 
-    if (desired_heading <= np.pi and desired_heading >= 0) and (
-        current_heading > -np.pi and current_heading < 0
-    ):
-        first_step = np.pi + current_heading
-        second_step = np.pi - desired_heading
-        counter_clockwise_error = -(first_step + second_step)
+    if error > np.pi / 2:
+        error = 1
+    elif error < -np.pi / 2:
+        error = -1
     else:
-        counter_clockwise_error = desired_heading - current_heading
-
-    clockwise_deg_error = np.rad2deg(clockwise_error)
-    counter_clockwise_deg_error = np.rad2deg(counter_clockwise_error)
-
-    c_e = abs(clockwise_error)
-    cc_e = abs(counter_clockwise_error)
-
-    if c_e < cc_e:
-        error = clockwise_error
-        output = pid_heading.update(error, error_derivative=yaw_rate)
-    elif c_e > cc_e:
-        error = counter_clockwise_error
-        output = pid_heading.update(error, error_derivative=yaw_rate)
-
-    print("Error: ", np.rad2deg(error))
+        error = np.sin(error)
 
     output = pid_heading.update(error, error_derivative=yaw_rate)
+
+    print("Error: ", np.rad2deg(error))
     print("Output: ", output)
 
     return output
-
-

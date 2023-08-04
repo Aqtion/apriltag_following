@@ -50,20 +50,24 @@ def _get_frame():
     try:
         pid_x = PID(30, 0, 0, 100)
         pid_y = PID(25, 0, 0, 100)
+
         while True:
             if video.frame_available():
                 # print("\n\n\nFrame found\n\n\n")
+
                 frame = video.frame()
+
                 try:
                     powers, color_img = process(frame, pid_x, pid_y, at_detector)
                 except:
-                    holding_vertical_power = pid_x.update(0)
-                    holding_lateral_power = pid_y.update(0)
+                    _, _ = pid_x.update(0), pid_y.update(0)
                     powers = [0, 0]
+
                 if not powers:
                     continue
-                lateral_power = powers[1]
-                vertical_power = powers[0]
+
+                lateral_power, vertical_power = powers
+
                 print(f"{lateral_power} {vertical_power}")
 
     except KeyboardInterrupt:

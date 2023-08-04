@@ -47,6 +47,8 @@ def _get_frame():
         sleep(0.01)
 
     try:
+        # TODO: Tune separately and copy and paste into main.py to implement full predator/prey behavior
+
         lateral_pid = PID(5, 0, 0, 0.9)
         heading_pid = PID(10, 0, 0, 1.3)
 
@@ -54,7 +56,7 @@ def _get_frame():
             if video.frame_available():
                 # print("\n\n\nFrame found\n\n\n")
                 frame = video.frame()
-                height, width, channels = frame.shape
+                _, width, _ = frame.shape
 
                 try:
                     b, m = process_image(frame)
