@@ -62,8 +62,8 @@ def _get_frame():
         pid_x = PID(60, 0, 0, 100)
         pid_y = PID(50, 0, 0, 100)
         # TODO tune the hell out of this
-        pid_z = PID(0.01, 0, 0, 100)
-        pid_heading = PID(30, 0, -0.5, 100)
+        pid_z = PID(0.01, 0, 0, 0.100)
+        pid_heading = PID(np.pi/6, 0, -0.5, 100) # P was 30 but Travis' group tried theirs at 30 so i changed it to 0.1 for now
 
 
         while True:
