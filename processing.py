@@ -8,7 +8,7 @@ def get_tags(frame, at_detector):
     dimensions = frame.shape
     height = dimensions[0]/2
     width = dimensions[1]/2
-    cameraMatrix = np.array([ 1060.71, 0, 960, 0, 1060.71, 540, 0, 0, 1]).reshape((3,3))
+    cameraMatrix = np.array([ 353.571428571, 0, 320, 0, 353.571428571, 180, 0, 0, 1]).reshape((3,3))    
     camera_params = ( cameraMatrix[0,0], cameraMatrix[1,1], cameraMatrix[0,2], cameraMatrix[1,2] )
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     tags = at_detector.detect(gray, estimate_tag_pose=True, camera_params = camera_params, tag_size=0.1)
@@ -32,7 +32,7 @@ def process(frame, pid_x, pid_y, pid_heading, pid_z, at_detector, yaw, yaw_rate)
 
     try:
         data = get_errors(color_img, tags, True)
-
+        # print(data)
         errors = data[0]
         centers = data[1]
 
@@ -57,20 +57,32 @@ def get_errors(color_img, tags, draw):
 
     for tag in tags:
         translation_matrix = tag.pose_t.reshape(1,3)
+ 
+        # print(translation_matrix)
+
         rotation_matrix = tag.pose_R
         rotations = R.from_matrix(rotation_matrix)
+
+        # print(rotations.as_quat())
+        
+        # print(rotations)
             
         # x = translation_matrix[0][0]
         # y = translation_matrix[0][1]
         z = translation_matrix[0][2]
 
-        theta = R.from_euler('zyx', rotations, degrees = True)[1]
+        print(z)
+
+        euler = rotations.as_euler('zyx', degrees=False)
+
+        theta = euler[1]
 
         theta_error += theta
-        # x_error += x
-        # y_error += y
 
         z_error += z
+
+        # print("theta error", theta_error)
+        # print("z error", z_error)
         
         center_x += tag.center[0]
         center_y += tag.center[1]
@@ -89,6 +101,8 @@ def get_errors(color_img, tags, draw):
     avg_y_error = -1 * (color_img.shape[1]/2 - center_y) / color_img.shape[1]
     avg_theta_error = theta_error / len(tags)
 
+    # print(z_error, avg_theta_error)
+
     return [[avg_x_error, avg_y_error, z_error, avg_theta_error], [center_x, center_y]]
 
 def draw_tag_center(color_img, centers):
@@ -102,14 +116,18 @@ def draw_tag_center(color_img, centers):
 
 
 def get_powers(errors, pid_x, pid_y, pid_z, pid_heading, yaw, yaw_rate):
+    longitudinal_offset = 0.1
     x_error = errors[0]
     y_error = errors[1]
-    z_error = errors[2]
-    heading_error = errors[3]
+    z_error = errors[2] - longitudinal_offset
+    print("z_error", z_error)
+    heading_error = errors[3] 
 
-    x_output = pid_x.update(x_error)
-    y_output = pid_y.update(y_error)
-    z_output = pid_z.update(z_error)
+    x_output = np.clip(pid_x.update(x_error), -100, 100)
+    y_output = np.clip(pid_y.update(y_error), -100, 100)
+    z_output = np.clip(pid_z.update(z_error), -100, 100)
+
+    print(x_output, y_output, z_output)
     heading_output = heading_control.get_to_heading(pid_heading, yaw + heading_error, yaw, yaw_rate)
 
     return [x_output, y_output, z_output, heading_output]

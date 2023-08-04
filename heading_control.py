@@ -1,15 +1,17 @@
 from pid import PID
 import numpy as np
 
-
+ 
 def get_to_heading(pid_heading, desired_heading, current_heading, yaw_rate):
+    desired_heading_deg = np.rad2deg(desired_heading)
+
     if desired_heading_deg > np.pi:
         desired_heading_deg = desired_heading_deg - 2*np.pi
 
     desired_heading = np.deg2rad(desired_heading_deg)
 
     clockwise_error = (desired_heading - current_heading) % (2 * np.pi)
-
+    
     if (desired_heading <= np.pi and desired_heading >= 0) and (
         current_heading > -np.pi and current_heading < 0
     ):
