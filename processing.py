@@ -153,7 +153,7 @@ def draw_powers(color_img, powers):
 
     smth = 300
 
-    text_thickness = 1
+    text_thickness = 3
 
     cv2.putText(color_img, str_x_out, (int(side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), text_thickness, cv2.LINE_AA) 
     cv2.putText(color_img, str_y_out, (int(width - side_offset - smth),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), text_thickness, cv2.LINE_AA)
