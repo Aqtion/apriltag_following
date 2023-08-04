@@ -63,7 +63,7 @@ def _get_frame():
         pid_y = PID(50, 0, 0, 100)
 
         # TODO tune the hell out of this
-        pid_z = PID(0.000005, 0, -0.005, 100)
+        pid_z = PID(0.5, 0, -0.005, 100)
 
         pid_heading = PID(30, 0, -0.5, 100)
 
@@ -79,9 +79,11 @@ def _get_frame():
                         yaw = msg.yaw
                         yaw_rate = msg.yawspeed
 
+                        #print(yaw_rate)
+
                         # print("Heading: ", np.rad2deg(yaw))
 
-                        powers, color_img = process(frame, pid_x, pid_y, pid_z, pid_heading, at_detector, yaw, yaw_rate)
+                        powers, color_img = process(frame, pid_x, pid_y, pid_heading, pid_z, at_detector, yaw, yaw_rate)
                         
                         output_video.write(color_img)
                     except:
@@ -93,7 +95,9 @@ def _get_frame():
                     lateral_power = powers[1]
                     longitudinal_power = powers[2]
                     heading_power = powers[3]
-#
+                    
+                    # if not heading_power  == 0:
+                    print(f"heading_power: {heading_power}")
                     # print(f'{lateral_power} {vertical_power} {longitudinal_power} {heading_power}')
                 # else:
                 #     try:
@@ -119,12 +123,12 @@ def _get_frame():
 def _send_rc():
     global vertical_power, lateral_power, longitudinal_power, heading_power
     while True:
-        bluerov.arm()
-        bluerov.set_vertical_power(int(vertical_power))
+        # bluerov.arm()
+        # bluerov.set_vertical_power(int(vertical_power))
         if predator:
-            # pass
+            pass
             # bluerov.set_lateral_power(int(lateral_power))
-            bluerov.set_longitudinal_power(int(longitudinal_power))
+            # bluerov.set_longitudinal_power(int(longitudinal_power))
             # bluerov.set_yaw_rate_power(int(heading_power))
         else:
             pass

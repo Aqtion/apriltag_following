@@ -88,4 +88,4 @@ class BlueROV:
             value = np.clip(value, -100, 100)
 
         pwm_value = 1500 + value * 4
-        self.set_rc_channel(3, pwm_value)
+        self.set_rc_channel(4, pwm_value)

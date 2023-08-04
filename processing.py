@@ -71,7 +71,7 @@ def get_errors(color_img, tags, draw):
         # y = translation_matrix[0][1]
         z = translation_matrix[0][2]
 
-        print(z)
+        # print(z)
 
         euler = rotations.as_euler('zyx', degrees=False)
 
@@ -97,11 +97,12 @@ def get_errors(color_img, tags, draw):
     z_error = z_error / len(tags)
     
 
-    avg_x_error = (color_img.shape[0]/2 - center_x) / color_img.shape[0]
-    avg_y_error = -1 * (color_img.shape[1]/2 - center_y) / color_img.shape[1]
+    avg_x_error = (color_img.shape[0]/2 - center_y) / color_img.shape[0]
+    avg_y_error = -1 * (color_img.shape[1]/2 - center_x) / color_img.shape[1]
     avg_theta_error = theta_error / len(tags)
 
-    # print(z_error, avg_theta_error)
+    #print(avg_theta_error)
+    #print(z_error, avg_theta_error)
 
     return [[avg_x_error, avg_y_error, z_error, avg_theta_error], [center_x, center_y]]
 
@@ -116,18 +117,18 @@ def draw_tag_center(color_img, centers):
 
 
 def get_powers(errors, pid_x, pid_y, pid_z, pid_heading, yaw, yaw_rate):
-    longitudinal_offset = 0.1
+    longitudinal_offset = 0.2
     x_error = errors[0]
     y_error = errors[1]
     z_error = errors[2] - longitudinal_offset
-    print("z_error", z_error)
+    # print("z_error", z_error)
     heading_error = errors[3] 
 
     x_output = np.clip(pid_x.update(x_error), -100, 100)
     y_output = np.clip(pid_y.update(y_error), -100, 100)
     z_output = np.clip(pid_z.update(z_error), -100, 100)
 
-    print(x_output, y_output, z_output)
+    # print(x_output, y_output, z_output)
     heading_output = heading_control.get_to_heading(pid_heading, yaw + heading_error, yaw, yaw_rate)
 
     return [x_output, y_output, z_output, heading_output]
@@ -142,22 +143,22 @@ def draw_powers(color_img, powers):
     z_output = powers[2]
     heading_output = powers[3]
 
-    str_x_out = "x_output: " + str(x_output)
-    str_y_out = "y_output: " + str(y_output)
-    str_z_out = "z_output: " + str(z_output)
-    str_heading_out = "heading_output: " + str(heading_output)
+    str_x_out = "x_output: " + str(round(x_output, 3))
+    str_y_out = "y_output: " + str(round(y_output, 3))
+    str_z_out = "z_output: " + str(round(z_output, 3))
+    str_heading_out = "heading_output: " + str(round(heading_output, 3))
 
-    x_side_offset = 100
-    top_offset = 100
+    side_offset = 25
+    top_offset = 25
 
-    y_side_offset = 100
+    smth = 300
 
-    text_thickness = 2
+    text_thickness = 1
 
-    cv2.putText(color_img, str_x_out, (int(x_side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), text_thickness, cv2.LINE_AA) 
-    cv2.putText(color_img, str_y_out, (int(width - y_side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), text_thickness, cv2.LINE_AA)
-    cv2.putText(color_img, str_z_out, (int(x_side_offset),int(height - top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), text_thickness, cv2.LINE_AA)
-    cv2.putText(color_img, str_heading_out, (int(width - x_side_offset),int(height - top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), text_thickness, cv2.LINE_AA)
+    cv2.putText(color_img, str_x_out, (int(side_offset),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), text_thickness, cv2.LINE_AA) 
+    cv2.putText(color_img, str_y_out, (int(width - side_offset - smth),int(top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), text_thickness, cv2.LINE_AA)
+    cv2.putText(color_img, str_z_out, (int(side_offset),int(height - top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), text_thickness, cv2.LINE_AA)
+    cv2.putText(color_img, str_heading_out, (int(width - side_offset - smth),int(height - top_offset)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), text_thickness, cv2.LINE_AA)
 
 def get_dimensions(color_img):
     return color_img.shape
